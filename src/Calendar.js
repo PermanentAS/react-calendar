@@ -6,8 +6,9 @@ export default class Calendar extends Component {
     super(props);
 
     this.state = {
+      today: dateFns.format(new Date(), "D MMMM YYYY"),
       currentMonth: new Date(),
-      today: dateFns.format(new Date(), "D MMMM YYYY")
+      selectedDate: new Date()
     };
   }
 
@@ -52,21 +53,113 @@ export default class Calendar extends Component {
     const weekdayStyle = {
       width: "14%",
       borderLeft: "1px solid gray",
-      paddingLeft: "5px"
+      padding: "5px 10px"
+    };
+
+    const navbarWeekdayStyle = {
+      paddingLeft: "2%"
     };
 
     for (let i = 0; i < 7; i++) {
       weekdays.push(
-        <div key={i} className="week-day " style={weekdayStyle}>
+        <div key={i} className="" style={weekdayStyle}>
           {dateFns.format(dateFns.addDays(firstDayOfWeek, i), "ddd")}
         </div>
       );
     }
 
     return (
-      <nav className="navbar navbar-dark bg-dark mt-3 navbar-weekday text-white text-left">
+      <nav
+        className="bg-dark mt-3 navbar-weekday text-white text-left d-flex"
+        style={navbarWeekdayStyle}
+      >
         {weekdays}
       </nav>
+    );
+  }
+
+  renderDaysGrid() {
+    const { currentMonth, selectedDate } = this.state;
+    const monthStart = dateFns.startOfMonth(currentMonth);
+    const monthEnd = dateFns.endOfMonth(currentMonth);
+    const startDate = dateFns.startOfWeek(monthStart);
+    const endDate = dateFns.endOfWeek(monthEnd);
+
+    const rows = [];
+    let days = [];
+    let day = startDate;
+    let formattedDate = "";
+
+    const dayStyle = {
+      width: "14%",
+      height: "100px",
+      borderLeft: "1px solid gray",
+      borderBottom: "1px solid gray",
+      borderRight: "1px solid gray",
+      padding: "8px 10px"
+    };
+
+    const rowStyle = {
+      padding: "0px",
+      margin: "0px"
+    };
+
+    const navStyle = {
+      flexWrap: "wrap",
+      flexDirection: "column",
+      paddingLeft: "2%"
+    };
+
+    while (day <= endDate) {
+      for (let i = 0; i < 7; i++) {
+        formattedDate = dateFns.format(day, "D");
+        const cloneDay = day;
+        days.push(
+          <div
+            className={`${
+              !dateFns.isSameMonth(day, monthStart)
+                ? "text-secondary"
+                : dateFns.isSameDay(day, selectedDate)
+                ? "text-primary font-weight-bold"
+                : "font-weight-bold"
+            }`}
+            key={day}
+            onClick={() =>
+              this.onSelectedDateClickHandler(dateFns.parse(cloneDay))
+            }
+            style={dayStyle}
+          >
+            <span>{formattedDate}</span>
+          </div>
+        );
+        day = dateFns.addDays(day, 1);
+      }
+      rows.push(
+        <div className="row d-flex" style={rowStyle} key={day}>
+          {days}
+        </div>
+      );
+      days = [];
+    }
+
+    return (
+      <div className="bg-light text-left" style={navStyle}>
+        {rows}
+      </div>
+    );
+  }
+
+  renderTodayButton() {
+    return (
+      <div className="mt-5 container-fluid text-center ">
+        <button
+          type="button"
+          className="pl-5 pr-5 pt-3 pb-3 btn btn-light text-uppercase font-weight-bold"
+          onClick={this.onTodayClickHandler}
+        >
+          Go To Today
+        </button>
+      </div>
     );
   }
 
@@ -82,16 +175,28 @@ export default class Calendar extends Component {
     });
   };
 
+  onSelectedDateClickHandler = day => {
+    this.setState({
+      selectedDate: day
+    });
+  };
+
+  onTodayClickHandler = () => {
+    this.setState({
+      currentMonth: new Date(),
+      selectedDate:  new Date()
+    });
+  }
+
   render() {
-    console.log(
-      dateFns.format(dateFns.startOfWeek(this.state.currentMonth), "ddd")
-    );
     return (
-      <div>
+      <React.Fragment>
         {this.renderNav()}
         {this.renderHeader()}
         {this.renderWeekdays()}
-      </div>
+        {this.renderDaysGrid()}
+        {this.renderTodayButton()}
+      </React.Fragment>
     );
   }
 }
