@@ -2,16 +2,29 @@ import React, { Component } from "react";
 import dateFns from "date-fns";
 
 export default class Calendar extends Component {
-  constructor(props) {
-    super(props);
 
-    this.state = {
+    state = {
       today: dateFns.format(new Date(), "D MMMM YYYY"),
       currentMonth: new Date(),
       selectedDate: new Date(),
       showPopup: false,
+      inputValue: '',
+      events: [
+        {
+          date: new Date(),
+          payload: 'Test event 1'
+        },
+        {
+          date: dateFns.addDays(new Date(), 1),
+          payload: 'Test event 2'
+        },
+        {
+          date: dateFns.addDays(new Date(), -1),
+          payload: 'Test event 3'
+        }
+      ]
     };
-  }
+
 
   renderNav() {
     return (
@@ -80,7 +93,7 @@ export default class Calendar extends Component {
   }
 
   renderDaysGrid() {
-    const { currentMonth, selectedDate } = this.state;
+    const { currentMonth, selectedDate, events } = this.state;
     const monthStart = dateFns.startOfMonth(currentMonth);
     const monthEnd = dateFns.endOfMonth(currentMonth);
     const startDate = dateFns.startOfWeek(monthStart);
@@ -115,6 +128,14 @@ export default class Calendar extends Component {
       for (let i = 0; i < 7; i++) {
         formattedDate = dateFns.format(day, "D");
         const cloneDay = day;
+        let todayEvents = []
+
+        for (let i = 0; i < events.length; i++) {
+          if (dateFns.isSameDay(day, events[i].date)) {
+            todayEvents.push(events[i].payload);
+          }
+        }
+
         days.push(
           <div
             className={`${
@@ -130,9 +151,15 @@ export default class Calendar extends Component {
             }
             style={dayStyle}
           >
-            <span>{formattedDate}</span>
+            <span>{formattedDate}</span><br/>
+            {todayEvents.map((event, index) => {
+              return(
+                <div className="font-weight-normal" key={index}>{event}</div>
+              )
+            })}
           </div>
         );
+        todayEvents = []
         day = dateFns.addDays(day, 1);
       }
       rows.push(
@@ -189,13 +216,15 @@ export default class Calendar extends Component {
                 className="form-control"
                 aria-label="Default"
                 aria-describedby="inputGroup-sizing-default"
+                value={this.state.inputValue}
+                onChange={this.onInputChangeHandler}
               />
             </div>
 
             <div className="d-flex justify-content-between">
               <button
                 className="btn btn-primary"
-                onClick={this.onPopupCloseClickHandler}
+                onClick={this.onPopupAddClickHandler}
               >
                 Add
               </button>
@@ -238,15 +267,34 @@ export default class Calendar extends Component {
     });
   };
 
+  onInputChangeHandler = (e) => {
+    this.setState({
+      inputValue: e.target.value,
+    })
+  }
+
+  onPopupAddClickHandler = () => {
+    let newEvent = {
+      date: this.state.selectedDate,
+      payload: this.state.inputValue
+    }
+
+    this.setState({
+      inputValue: '',
+      showPopup: false,
+      events: [...this.state.events, newEvent]
+    });
+  };
+
   onPopupCloseClickHandler = () => {
     this.setState({
       showPopup: false
     });
   };
 
-  render() {
-    // const Popup = this.state.showPopup ?  : null
 
+
+  render() {
     return (
       <React.Fragment>
         {this.renderNav()}
