@@ -8,7 +8,8 @@ export default class Calendar extends Component {
     this.state = {
       today: dateFns.format(new Date(), "D MMMM YYYY"),
       currentMonth: new Date(),
-      selectedDate: new Date()
+      selectedDate: new Date(),
+      showPopup: false,
     };
   }
 
@@ -163,6 +164,54 @@ export default class Calendar extends Component {
     );
   }
 
+  renderPopup() {
+    const popupStyle = {
+      position: "absolute",
+      top: "0",
+      left: "0",
+      right: "0",
+      bottom: "0",
+      backgroundColor: "rgba(0,0,0, 0.7)"
+    };
+
+    return (
+      <div className="popup" style={popupStyle}>
+        <div className="card" style={{ width: "600px", margin: "300px auto" }}>
+          <div className="card-body">
+            <h5 className="card-title">
+              {dateFns.format(this.state.selectedDate, "D/MM/YYYY")}
+            </h5>
+            <h5 className="card-title mb-2 text-muted">Input your event</h5>
+
+            <div className="input-group mb-3">
+              <input
+                type="text"
+                className="form-control"
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+              />
+            </div>
+
+            <div className="d-flex justify-content-between">
+              <button
+                className="btn btn-primary"
+                onClick={this.onPopupCloseClickHandler}
+              >
+                Add
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={this.onPopupCloseClickHandler}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   nextMounthClickHandler = () => {
     this.setState({
       currentMonth: dateFns.addMonths(this.state.currentMonth, 1)
@@ -177,18 +226,27 @@ export default class Calendar extends Component {
 
   onSelectedDateClickHandler = day => {
     this.setState({
-      selectedDate: day
+      selectedDate: day,
+      showPopup: true
     });
   };
 
   onTodayClickHandler = () => {
     this.setState({
       currentMonth: new Date(),
-      selectedDate:  new Date()
+      selectedDate: new Date()
     });
-  }
+  };
+
+  onPopupCloseClickHandler = () => {
+    this.setState({
+      showPopup: false
+    });
+  };
 
   render() {
+    // const Popup = this.state.showPopup ?  : null
+
     return (
       <React.Fragment>
         {this.renderNav()}
@@ -196,6 +254,7 @@ export default class Calendar extends Component {
         {this.renderWeekdays()}
         {this.renderDaysGrid()}
         {this.renderTodayButton()}
+        {this.state.showPopup ? this.renderPopup() : null}
       </React.Fragment>
     );
   }
