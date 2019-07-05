@@ -1,5 +1,7 @@
 import React from "react";
 import dateFns from "date-fns";
+import { connect } from "react-redux";
+import { onSelectedDateClickHandler } from "./../../actions";
 
 const DaysGrid = ({
   currentMonth,
@@ -51,7 +53,7 @@ const DaysGrid = ({
 
       days.push(
         <div
-          className={`${
+          className={`dayStyle ${
             !dateFns.isSameMonth(day, monthStart)
               ? "text-secondary"
               : dateFns.isSameDay(day, selectedDate)
@@ -91,4 +93,17 @@ const DaysGrid = ({
   );
 };
 
-export default DaysGrid;
+const mapStateToProps = ({ currentMonth, selectedDate, events }) => {
+  return {
+    currentMonth,
+    selectedDate,
+    events
+  };
+};
+
+const mapDispatchToProps = { onSelectedDateClickHandler };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DaysGrid);

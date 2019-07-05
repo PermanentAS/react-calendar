@@ -1,6 +1,8 @@
 import React from "react";
+import { connect } from "react-redux";
+import { onTodayClickHandler } from "./../../actions";
 
-const TodayButton = ({ onTodayClickHandler }) => {
+const TodayButton = ({onTodayClickHandler}) => {
   return (
     <div className="mt-5 container-fluid text-center ">
       <button
@@ -14,4 +16,10 @@ const TodayButton = ({ onTodayClickHandler }) => {
   );
 };
 
-export default TodayButton;
+const mapDispatchToProps = {
+  onTodayClickHandler }
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(TodayButton);

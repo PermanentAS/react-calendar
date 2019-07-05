@@ -1,5 +1,6 @@
 import React from "react";
 import dateFns from "date-fns";
+import { connect } from "react-redux";
 
 const WeekDays = ({ currentMonth }) => {
   let weekdays = [];
@@ -32,4 +33,10 @@ const WeekDays = ({ currentMonth }) => {
   );
 };
 
-export default WeekDays;
+const mapStateToProps = ({ currentMonth }) => {
+  return {
+    currentMonth
+  };
+};
+
+export default connect(mapStateToProps)(WeekDays);
